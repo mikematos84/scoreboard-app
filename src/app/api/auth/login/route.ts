@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@/generated/prisma/client';
+import { prisma } from '@/lib/prisma'; // Use singleton instead
 import bcrypt from 'bcryptjs';
 import { generateToken } from '@/lib/auth';
-
-const prisma = new PrismaClient();
 
 export async function POST(request: Request) {
   try {
@@ -56,22 +54,30 @@ export async function POST(request: Request) {
     });
 
     // Set HTTP-only cookie
-    // On Vercel, always use HTTPS, so secure should be true in production
     const isProduction = process.env.NODE_ENV === 'production';
     const isSecure = isProduction || process.env.VERCEL === '1';
     
     response.cookies.set('auth_token', token, {
       httpOnly: true,
-      secure: isSecure, // Send over HTTPS in production/Vercel
-      sameSite: 'lax', // More permissive than 'strict' but still secure - works better with Vercel
+      secure: isSecure,
+      sameSite: 'lax',
       path: '/',
       maxAge: 60 * 60 * 24 * 7, // 7 days
     })
 
     return response;
   } catch (error) {
+    // Log the actual error for debugging
+    console.error('Login error:', error);
+    
     return NextResponse.json(
-      { error: 'Login failed' },
+      { 
+        error: 'Login failed',
+        // Only include error details in development
+        ...(process.env.NODE_ENV === 'development' && { 
+          details: error instanceof Error ? error.message : String(error) 
+        })
+      },
       { status: 500 }
     );
   }
