@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { verifyToken, getTokenFromRequest } from './auth';
-import { UserRole } from '@/generated/prisma/client';
+import { UserRole } from '@prisma/client';
 
 export async function requireAuth(request: Request) {
   const token = await getTokenFromRequest(request);

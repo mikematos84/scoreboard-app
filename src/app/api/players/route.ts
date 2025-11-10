@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
-import { PrismaClient, UserRole } from "@/generated/prisma/client";
+import { UserRole } from "@prisma/client";
 import { requireAuth, requireRole } from "@/lib/authMiddleware";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
 
 export async function GET(request: Request) {
     const user = await requireAuth(request);

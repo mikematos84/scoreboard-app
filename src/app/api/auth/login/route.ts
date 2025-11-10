@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@/generated/prisma/client';
+import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { generateToken } from '@/lib/auth';
-
-const prisma = new PrismaClient();
 
 export async function POST(request: Request) {
   try {
@@ -57,19 +55,46 @@ export async function POST(request: Request) {
 
     // Set HTTP-only cookie
     const isProduction = process.env.NODE_ENV === 'production';
+    const isSecure = isProduction || process.env.VERCEL === '1';
     
     response.cookies.set('auth_token', token, {
       httpOnly: true,
-      secure: isProduction, // Only send over HTTPS in production
-      sameSite: 'strict',
+      secure: isSecure,
+      sameSite: 'lax',
       path: '/',
       maxAge: 60 * 60 * 24 * 7, // 7 days
     })
 
     return response;
   } catch (error) {
+    // Enhanced error logging for Vercel
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    const errorName = error instanceof Error ? error.name : 'UnknownError';
+    
+    console.error('Login error details:', {
+      message: errorMessage,
+      name: errorName,
+      stack: errorStack,
+      // Log environment info for debugging
+      nodeEnv: process.env.NODE_ENV,
+      vercel: process.env.VERCEL,
+      hasDatabaseUrl: !!process.env.DATABASE_URL,
+      // Check if it's a Prisma error
+      isPrismaError: errorName.includes('Prisma') || errorMessage.includes('Prisma'),
+    });
+    
+    // Return error details in response for debugging (you can remove this in production)
     return NextResponse.json(
-      { error: 'Login failed' },
+      { 
+        error: 'Login failed',
+        // Include error details for debugging on Vercel
+        details: process.env.VERCEL ? {
+          message: errorMessage,
+          name: errorName,
+          isPrismaError: errorName.includes('Prisma') || errorMessage.includes('Prisma'),
+        } : undefined
+      },
       { status: 500 }
     );
   }
