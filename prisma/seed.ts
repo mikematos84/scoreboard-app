@@ -1,8 +1,7 @@
 import 'dotenv/config';
-import { PrismaClient, UserRole } from '../src/generated/prisma/client';
+import { UserRole } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs'; // or use another hashing library
-
-const prisma = new PrismaClient();
 
 async function main() {
   // Check if admin already exists
