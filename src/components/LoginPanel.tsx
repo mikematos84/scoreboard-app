@@ -1,44 +1,22 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { TextField, Button, Box } from '@mui/material';
+import { useRouter } from 'next/navigation';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { clearError, loginUser } from '@/store/slices/authSlice';
 
 export default function LoginPanel() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const dispatch = useAppDispatch();
+    
+    const { isLoading, error } = useAppSelector(state => state.auth);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setLoading(true);
-        setError(null);
-        try {
-            const res = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ username, password }),
-            });
-
-            const data = await res.json();
-                console.info(data);
-
-            if (!res.ok) {
-                const data = await res.json();
-                console.info(data);
-                setError(data.error || 'Login failed.');
-            } else {
-                // maybe redirect or signal success
-                // For now just indicate success
-                setError(null);
-                // window.location.reload();
-            }
-        } catch (err) {
-            setError('Network error.');
-        } finally {
-            setLoading(false);
-        }
+        dispatch(clearError())
+        const result = await dispatch(loginUser({ username, password }));
+        console.info(result);
     };
 
     return (
@@ -74,9 +52,9 @@ export default function LoginPanel() {
                 variant="contained"
                 color="primary"
                 type="submit"
-                disabled={loading}
+                disabled={isLoading}
             >
-                {loading ? 'Logging in...' : 'Login'}
+                {isLoading ? 'Logging in...' : 'Login'}
             </Button>
             {error && (
                 <Box sx={{ color: 'red', mt: 1 }}>

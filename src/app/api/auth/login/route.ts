@@ -45,8 +45,8 @@ export async function POST(request: Request) {
       role: user.role,
     });
 
-    return NextResponse.json({
-      token,
+    // Create response with user data
+    const response = NextResponse.json({
       user: {
         id: user.id,
         username: user.username,
@@ -54,6 +54,19 @@ export async function POST(request: Request) {
         role: user.role,
       },
     });
+
+    // Set HTTP-only cookie
+    const isProduction = process.env.NODE_ENV === 'production';
+    
+    response.cookies.set('auth_token', token, {
+      httpOnly: true,
+      secure: isProduction, // Only send over HTTPS in production
+      sameSite: 'strict',
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+    })
+
+    return response;
   } catch (error) {
     return NextResponse.json(
       { error: 'Login failed' },

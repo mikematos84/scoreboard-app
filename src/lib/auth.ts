@@ -1,5 +1,6 @@
 import { UserRole } from '@/generated/prisma/client';
 import jwt from 'jsonwebtoken';
+import { cookies } from 'next/headers';
 
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';
@@ -23,10 +24,16 @@ export function verifyToken(token: string): JwtPayload | null {
   }
 }
 
-export function getTokenFromRequest(request: Request): string | null {
+export async function getTokenFromRequest(request: Request): Promise<string | null> {
+  // First check Authorization header (for API clients that might use it)
   const authHeader = request.headers.get('authorization');
+  
   if (authHeader?.startsWith('Bearer ')) {
     return authHeader.substring(7);
   }
-  return null;
+
+  // Then check cookies (for browser clients)
+  const cookieStore = await cookies();
+  const token = cookieStore.get('auth_token')?.value;
+  return token || null;
 }
