@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma'; // Use singleton instead
+import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { generateToken } from '@/lib/auth';
 
@@ -67,16 +67,33 @@ export async function POST(request: Request) {
 
     return response;
   } catch (error) {
-    // Log the actual error for debugging
-    console.error('Login error:', error);
+    // Enhanced error logging for Vercel
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    const errorName = error instanceof Error ? error.name : 'UnknownError';
     
+    console.error('Login error details:', {
+      message: errorMessage,
+      name: errorName,
+      stack: errorStack,
+      // Log environment info for debugging
+      nodeEnv: process.env.NODE_ENV,
+      vercel: process.env.VERCEL,
+      hasDatabaseUrl: !!process.env.DATABASE_URL,
+      // Check if it's a Prisma error
+      isPrismaError: errorName.includes('Prisma') || errorMessage.includes('Prisma'),
+    });
+    
+    // Return error details in response for debugging (you can remove this in production)
     return NextResponse.json(
       { 
         error: 'Login failed',
-        // Only include error details in development
-        ...(process.env.NODE_ENV === 'development' && { 
-          details: error instanceof Error ? error.message : String(error) 
-        })
+        // Include error details for debugging on Vercel
+        details: process.env.VERCEL ? {
+          message: errorMessage,
+          name: errorName,
+          isPrismaError: errorName.includes('Prisma') || errorMessage.includes('Prisma'),
+        } : undefined
       },
       { status: 500 }
     );
