@@ -10,4 +10,8 @@ export const prisma =
     log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
   });
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+// Store in global to prevent multiple instances in serverless environments
+// This works for both development and production (including Vercel)
+if (!globalForPrisma.prisma) {
+  globalForPrisma.prisma = prisma;
+}
