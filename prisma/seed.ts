@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { UserRole } from '@prisma/client';
+import { UserRole } from '@/generated/prisma/client';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs'; // or use another hashing library
 

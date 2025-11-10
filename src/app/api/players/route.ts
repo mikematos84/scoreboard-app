@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { UserRole } from "@prisma/client";
+import { UserRole } from "@/generated/prisma/client";
 import { requireAuth, requireRole } from "@/lib/authMiddleware";
 import { prisma } from "@/lib/prisma";
 

@@ -1,4 +1,4 @@
-import { UserRole } from '@prisma/client';
+import { UserRole } from '@/generated/prisma/client';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 
