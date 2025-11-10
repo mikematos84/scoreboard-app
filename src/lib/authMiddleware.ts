@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server';
 import { verifyToken, getTokenFromRequest } from './auth';
 import { UserRole } from '@/generated/prisma/client';
 
-export function requireAuth(request: Request) {
-  const token = getTokenFromRequest(request);
+export async function requireAuth(request: Request) {
+  const token = await getTokenFromRequest(request);
   
   if (!token) {
     return NextResponse.json(
@@ -24,8 +24,8 @@ export function requireAuth(request: Request) {
   return payload; // Return user payload if valid
 }
 
-export function requireRole(request: Request, allowedRoles: UserRole[]) {
-  const user = requireAuth(request);
+export async function requireRole(request: Request, allowedRoles: UserRole[]) {
+  const user = await requireAuth(request);
   
   if (user instanceof NextResponse) {
     return user; // Error response

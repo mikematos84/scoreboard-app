@@ -5,7 +5,7 @@ import { requireAuth, requireRole } from "@/lib/authMiddleware";
 const prisma = new PrismaClient();
 
 export async function GET(request: Request) {
-    const user = requireAuth(request);
+    const user = await requireAuth(request);
     if (user instanceof NextResponse) {
         return user; // Error response
     }
@@ -19,7 +19,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
     // Require authentication + admin role
-    const user = requireRole(request, [UserRole.ADMIN, UserRole.COACH]);
+    const user = await requireRole(request, [UserRole.ADMIN, UserRole.COACH]);
     if (user instanceof NextResponse) {
       return user; // Error response
     }
