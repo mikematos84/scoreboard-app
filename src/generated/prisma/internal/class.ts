@@ -34,6 +34,10 @@ const config: runtime.GetPrismaClientConfig = {
         "fromEnvVar": null,
         "value": "windows",
         "native": true
+      },
+      {
+        "fromEnvVar": null,
+        "value": "rhel-openssl-3.0.x"
       }
     ],
     "previewFeatures": [],
@@ -47,6 +51,7 @@ const config: runtime.GetPrismaClientConfig = {
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -55,8 +60,8 @@ const config: runtime.GetPrismaClientConfig = {
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client\"\n  output   = \"../src/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nenum UserRole {\n  PLAYER\n  MANAGER\n  COACH\n  ADMIN\n}\n\nmodel User {\n  id        String   @id @default(uuid())\n  username  String   @unique\n  email     String   @unique\n  password  String\n  role      UserRole @default(PLAYER)\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel Player {\n  id           String    @id @default(uuid())\n  firstName    String\n  lastName     String\n  dateOfBirth  DateTime?\n  position     String?\n  jerseyNumber Int?\n  createdAt    DateTime  @default(now())\n  updatedAt    DateTime  @updatedAt\n  teams        Team[]    @relation(\"Team\")\n}\n\nmodel Team {\n  id        String   @id @default(uuid())\n  name      String   @unique\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n  players   Player[] @relation(\"Team\")\n}\n",
-  "inlineSchemaHash": "c4f38946aa0dfe29c03b24690f599804a66ff770f19307f8ab07685410664cca",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider      = \"prisma-client\"\n  output        = \"../src/generated/prisma\"\n  binaryTargets = [\"native\", \"rhel-openssl-3.0.x\"]\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nenum UserRole {\n  PLAYER\n  MANAGER\n  COACH\n  ADMIN\n}\n\nmodel User {\n  id        String   @id @default(uuid())\n  username  String   @unique\n  email     String   @unique\n  password  String\n  role      UserRole @default(PLAYER)\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel Player {\n  id           String    @id @default(uuid())\n  firstName    String\n  lastName     String\n  dateOfBirth  DateTime?\n  position     String?\n  jerseyNumber Int?\n  createdAt    DateTime  @default(now())\n  updatedAt    DateTime  @updatedAt\n  teams        Team[]    @relation(\"Team\")\n}\n\nmodel Team {\n  id        String   @id @default(uuid())\n  name      String   @unique\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n  players   Player[] @relation(\"Team\")\n}\n",
+  "inlineSchemaHash": "3827ff3dc70893d6800b1412edcaaf108eced9da2f6538236a3a7eccf7126866",
   "copyEngine": true,
   "runtimeDataModel": {
     "models": {},
